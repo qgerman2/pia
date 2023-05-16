@@ -1,0 +1,23 @@
+\documentclass[12pt]{report}
+\usepackage[letterpaper, margin=3cm]{geometry}
+\usepackage{tgtermes}
+\usepackage[spanish]{babel}
+\usepackage[indent]{parskip}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+\graphicspath{{./img/}}
+\usepackage{biblatex}
+\addbibresource{refs.bib}
+\usepackage{csquotes}
+\usepackage{bookmark}
+
+\begin{document}
+\input{portada.tex}
+\tableofcontents
+\input{cap1.tex}
+\input{cap2.tex}
+\input{cap3.tex}
+\printbibliography
+\end{document}
