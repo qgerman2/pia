@@ -14,3 +14,13 @@ Prepar3D
 reimplementa
 SimConnect
 Raspberry
+i7
+GTX
+Cessna
+PCI
+splitter
+3770k
+3370k
+WinCDEmu
+ImgBurn
+PID
