@@ -24,3 +24,17 @@ splitter
 WinCDEmu
 ImgBurn
 PID
+MicroPython
+little
+endian
+language
+SimuLink
+Toolbox
+Instrument
+checksum
+Protocol
+User
+Transmission
+Datagram
+Code
+WinSock

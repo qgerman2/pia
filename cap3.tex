@@ -1,7 +1,7 @@
 \chapter{Protocolo de comunicación}
 
 % Que es el protocolo de comunicación
-El protocolo de comunicación consiste en una selección de mensajes estructurados, diseñados para realizar ciertas acciones sobre una simulación de vuelo, mensajes que son enviados desde un equipo externo como un microcontrolador u otro computador convencional, a otro equipo que esté ejecutando software de simulación.
+El protocolo de comunicación consiste en una selección de mensajes estructurados, diseñados para realizar ciertas acciones sobre una simulación de vuelo, los mensajes son enviados desde un equipo externo como un microcontrolador u otro computador convencional, a otro equipo que esté ejecutando software de simulación.
 
 % Para que sirve
 Este protocolo ofrece la capacidad de trabajar de manera programática con las variables que gobiernan una simulación, por ejemplo puede hacer todo lo que ya incluye X-Plane en su interfaz de usuario como guardar datos a un Excel o cargar un estado específico, pero además permite acceder a variables internas de la simulación y modificarlas arbitrariamente en tiempo real.
@@ -10,29 +10,199 @@ Este protocolo ofrece la capacidad de trabajar de manera programática con las v
 Ejemplos de uso pueden ser ejecutar acciones sencillas como automatizar una misión, o analizar como afectan diversas condiciones externas como el clima o comandos del piloto a una maniobra de manera iterativa, reiniciando repetidamente el estado de la aeronave a uno inicial pero alterando ciertas variables. Más interesante es la nueva habilidad de poder responder en tiempo real al estado de la simulación, que permite desarrollar sistemas de control desde simples PID en Python o C hasta complejos modelos en Simulink.
 
 % En la U servira para practicar programación en Python y proyectos
-En el contexto del laboratorio de técnicas aeroespaciales, el diseño del protocolo de comunicación busca alcanzar un balance entre versatilidad y facilidad de uso, que permitirá a estudiantes interesados aplicar sus conocimientos de Python y poder manipular la simulación mediante código comprensible, pero que también sirva de herramienta potente para la investigación y no sea un factor limitante debido a que no posea cierta funcionalidad que se requiera.
+En el contexto del laboratorio de técnicas aeroespaciales, el diseño del protocolo de comunicación busca alcanzar un balance entre versatilidad y facilidad de uso, que permitirá a estudiantes interesados aplicar sus conocimientos de Python para manipular la simulación mediante código comprensible, pero que también sirva de herramienta potente para la investigación y no sea un factor limitante debido a que no posea cierta funcionalidad que se requiera.
 
-\section{Microprocesadores}
+% Resumen del capitulo
+En este capítulo se describe el proceso de desarrollo del protocolo de comunicación según la metodología presentada y las decisiones que fueron tomadas en el camino.
+
+\section{Microcontroladores}
+
+% Por que microcontroladores?
+El objetivo principal de este proyecto de ingeniería es establecer el protocolo en microcontroladores, ventajas de trabajar con ellos es que permiten una fácil interacción con el mundo real desplegando información con luces LED, sonidos o pantallas y recibiendo entradas con botones o potenciómetros, además son muy rápidos y consistentes ejecutando las órdenes programadas.
+
+% Que tienen en comun los distintos microcontroladores
+Existen muchos tipos de microcontrolador con distintas funciones, la mayoría se debe programar en C y algunos soportan Python que es de especial interés al ser el lenguaje que se enseña en la universidad, tienen una variada cantidad de pines de uso general, distinto tamaño de las memorias, etc. Pero si hay algo que tienen en común es que soportan comunicación Serial usualmente por USB, y los que tienen el hardware necesario también comunicación inalámbrica por wifi y bluetooth.
+
+% Aprovechar los canales de comunicación regulares
+El diseño del protocolo se centra en crear una estructura de mensajes que sea fácil implementar en cualquier microcontrolador, independiente del lenguaje o el canal. Esto se traduce en que no va a haber una librería para cada lenguaje tipo librerías Arduino o módulos Python que abstraen la comunicación, sino que primero se analizan los tipos de estructura de datos que los lenguajes de interés soportan por defecto y se diseña el protocolo alrededor de ellos aprovechando las librerías estándar ya establecidas.
+
+% Selección de microcontroladores y lenguaje
+Los microcontroladores seleccionados para comenzar el diseño son la familia de Arduino y el Raspberry Pi Pico, más importante que los modelos en específico es el lenguaje en el que se programan que por defecto es C, además algunos microcontroladores Arduino y Raspberry se pueden programar en Python con la implementación MicroPython \cite{micropython}.
+
+\subsection{Serialización de datos}
+
+% Por que serializar
+Al no proporcionar librerías para cada lenguaje todo el proceso de comunicación debe programarlo manualmente el usuario, teniendo en cuenta esto, para que el protocolo aun así sea fácil de usar primero hay que analizar las formas que tienen estos lenguajes de empaquetar información para su transmisión.
+
+\subsubsection{Cadenas de caracteres}
+
+La manera más sencilla es concatenar información en cadenas de caracteres, que luego el compilador o interprete automáticamente transforma a bytes para su transmisión. Para el envío de mensajes puntuales y que no son formulados dinámicamente las cadenas de caracteres son ideales. Por ejemplo si se quiere enviar un mensaje que solicita monitorear las variables de velocidad y altitud de manera continua, se podría escribir una cadena así.
+
+\begin{lstlisting}[language=Python]
+	msg = "M;2B8:i;574:i;"
+\end{lstlisting}
+
+Los primeros dos caracteres \lstinline{M;} indican que el mensaje es una solicitud de monitoreo de variables específicas, el segmento \lstinline{2B8:i;} señala que se monitoree la variable en la memoria \lstinline{2B8}, que contiene la velocidad, e \lstinline{i} es el tipo de variable que en este caso es un número entero con signo de 32 bits.
+
+Para recibir información o crear mensajes de manera dinámica las cadenas de caracteres ya no sirven, se complica la extracción de los datos al tener que emplear funciones como \lstinline{string.split} que separen la cadena en subcadenas delimitadas por el carácter \lstinline{:}, y la formulación de mensajes dinámicos depende de la concatenación de cadenas con el operador \lstinline{+}.
+
+\subsubsection{Estructuras}
+
+Las estructuras son contenedores capaces de almacenar múltiples variables de distinto tipo en espacios continuos de memoria, una vez definida la estructura se puede recibir un mensaje en forma de secuencia de bytes y convertirlo rápidamente a la disposición de la estructura con la que se puede trabajar fácilmente. Por ejemplo luego de enviar la previa orden de monitoreo, se recibirán continuamente los valores de velocidad y altitud en forma de estructura de números de punto flotante con doble precisión.
+
+\begin{lstlisting}[language=Python]
+	msg = sock_recv.recvfrom(1024)
+	tas, altitude = struct.unpack("<dd", msg)
+	print(tas, altitude)
+\end{lstlisting}
+
+La variable \lstinline{msg} contiene el mensaje recibido con la información solicitada, la función \lstinline{struct.unpack} lee el mensaje de acuerdo a la cadena de formato \lstinline[language=Python]{"<dd"}, el carácter \lstinline{<} indica que la información viene codificada en formato little-endian y los caracteres \lstinline{dd} que el mensaje contiene dos números de punto flotante, uno por cada letra \lstinline{d}.
+
+\subsubsection{SimuLink}
+
+Si bien se aleja un poco de los objetivos del proyecto, SimuLink es una herramienta muy útil para el control en tiempo real por lo que vale la pena revisar como enviar y recibir información en ella, además existe documentación para ejecutar modelos en microcontroladores \cite{simulinkarduino}.
+
+El paquete ``Instrument Control Toolbox'' de SimuLink agrega bloques para enviar y recibir información por UDP/IP \cite{simulinkict}, los mensajes deben contener números en estructuras con la misma disposición que la descrita en el ejemplo anterior.
 
 \subsection{Canales de comunicación}
 
-\subsection{Lenguajes de programación}
+Los microcontroladores Arduino y Raspberry Pi Pico permiten comunicación serial por USB, y los que tienen el hardware necesario pueden comunicarse por wifi y bluetooth.
+
+Sobre la comunicación wifi se tiene el ``Internet Protocol'' o IP que asigna direcciones a cada equipo y habilita múltiples puertos por los que enviar o recibir información, y sobre IP puede implementarse el ``Transmission Control Protocol'' o TCP y ``User Datagram Protocol'' o UDP entre otros, que son protocolos que administran el envío de mensajes en paquetes con funcionalidad especifica, por ejemplo TCP asegura garantías en la comunicación con mecanismos de respaldo en caso de que los mensajes no sean recibidos o lleguen en un orden distinto al esperado, pero a costo de velocidad de procesamiento en la verificación y más pasos necesarios para establecer una conexión que como lo hace UDP.
+
+\subsubsection{User Datagram Protocol}
+
+Una vez establecida la conexión a una red wifi, enviar información en UDP por IP es posible conociendo la IP del equipo de destino y el puerto en el que este está esperando recibir mensajes, de la misma manera el microcontrolador puede abrir un puerto donde leer mensajes a medida que vayan llegando. Es un mecanismo muy simple que cumple con los parámetros de diseño.
+
+\begin{lstlisting}[language=Python]
+	import socket
+	import struct
+
+	# Inicializar estructuras de comunicacion
+	SERVER = ("192.168.1.10", "27015")
+	CLIENT = ("127.0.0.1", "27016")
+	sock_send = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	sock_recv = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	sock_recv.bind(CLIENT)
+
+	# Enviar mensaje de monitoreo
+	msg = "M;2B8:i;"
+	sock_send.sendto(bytes(msg, "ascii"), SERVER)
+
+	# Leer valores recibidos
+	for i in range(11):
+		msg, addr = sock_recv.recvfrom(1024)
+		tas = struct.unpack("<d", msg)
+		print("TAS: " + str(tas[0]/128) + " knots")
+\end{lstlisting}
+
+El primer bloque define las estructuras necesarias para la comunicación, la variable \lstinline{SERVER} almacena la dirección de destino y el puerto, y la variable \lstinline{CLIENT} el puerto donde se recibirán mensajes.
+
+El segundo bloque envía una cadena de caracteres codificada en ``ASCII'' al servidor con la orden de monitorear la variable en la memoria \lstinline{2B8} con tipo de variable número entero con signo de 32 bits.
+
+El tercer bloque recibe información del servidor y la lee desempaquetando la estructura que contiene solo un número de coma flotante con doble precisión.
+
+UDP no tiene concepto de conexiones, solo permite enviar mensajes a cierta dirección sin otorgar retroalimentación de que estos hayan llegado o no, y al recibir mensajes la única garantía es que los datos al leerse se encuentran tal como fueron enviados, porque internamente el protocolo realiza una verificación de integridad con un checksum, de otra manera el mensaje se descarta. Estas limitaciones se pueden sobrellevar fácilmente para los casos en los que se requiera, ese trabajo tendrá que hacerlo el programa del servidor y no el cliente por lo que no agregara más complejidad al protocolo.
 
 \section{Interfaz a simulador}
 
+% Proposito del programa interfaz
+El programa que haga interfaz con el simulador tiene la responsabilidad de establecer comunicación con el microcontrolador y ejecutar acciones sobre la simulación de acuerdo a lo que se solicite, además de proporcionar reportes que ayuden al usuario a diagnosticar problemas de conexión o errores que se produzcan en los comandos que se reciban.
+
+% Relación con el usuario final
+El usuario final no necesita conocer el funcionamiento interno del programa aparte del protocolo de comunicación con él, es aquí donde ocurre toda la abstracción del acceso a la memoria del simulador para lectura y escritura.
+
+% Implicancias de diseño
+Considerando lo anterior y buscando facilitar el uso de este software, se decide que el programa interfaz estará escrito en C++ y se distribuirá como un archivo ejecutable para Windows, sin ninguna otra dependencia.
+
+% Ahora si, como se logra la interfaz con el simulador
+Acceder a la memoria interna del simulador es posible gracias a varias librerías como se mencionó en la sección de ``Planteamiento del problema'', de todas las existentes se opta por Flight Simulator Universal Inter-Process Communication o FSUIPC, debido a que hasta hoy sigue en desarrollo y se ofrece soporte en los foros oficiales \cite{fsuipcforum}, existen reimplementaciones del protocolo para otros simuladores como XPUIPC \cite{xpuipc}, convirtiéndolo en un estándar y asegurando que funciona con X-Plane 9 y 10 que son los programas instalados en el simulador, y en el futuro con los que nuevos simuladores que vayan a salir \cite{xpuipc12}.
+
 \subsection{Flight Simulator Universal Inter-Process Communication}
 
-\section{Establecimiento del protocolo}
+% Que es
+Flight Simulator Universal Inter-Process Communication \cite{fsuipc} es en primer lugar un plug-in para Microsoft Flight Simulator y Prepar3D que abre un canal de comunicación ``entre-procesos'' en el sistema operativo, y en segundo lugar es una librería que permite la comunicación con el plug-in para enviar y recibir datos internos de la simulación.
 
-\subsection{Alcance}
+% X-Plane
+Su reimplementación para X-Plane, XPUIPC \cite{xpuipc}, reemplaza el plug-in original y ofrece uno que funciona con las versiones 9, 10 y 11 del simulador con la versión para X-Plane 12 aun en desarrollo \cite{xpuipc12}, la librería sigue siendo la de FSUIPC, lo que implica que los programas escritos con la librería también funcionan en X-Plane y XPUIPC sin intervención del programador, formando un estándar.
 
-\subsection{Decisiones de diseño}
+% Funcionamiento interno de la libreria
+La librería ofrece funciones muy básicas, pero efectivas, estas son \lstinline{Open()} para conectar con el simulador y \lstinline{Close()} para cerrar la comunicación, \lstinline{Write(address, value)} para escribir en un lugar de la memoria un valor y \lstinline{Read(address)} para leer un valor en la memoria. Las posiciones de la memoria están descritas en un documento incluido con FSUIPC \cite{fsuipcoffsets} e indican que variable reside en que lugar y el tipo de variable, sea número entero o de coma flotante, si es con o sin signo y cuantos bytes ocupa.
 
-\subsubsection{Servidor}
+\section{Flight Simulator Simple Protocol}
 
-\subsubsection{Cliente}
+Considerando las decisiones de diseño descritas hasta ahora en el capítulo, se comienza la escritura del programa intermediario entre el microcontrolador y el simulador, primero estableciendo un entorno de desarrollo en C++ integrando la librería de FSUIPC.
 
-\subsection{Protocolo}
+Si bien el programa intermediario no será utilizado por el usuario final que solo trabajara con el protocolo, interesa que el entorno de desarrollo sea simple para facilitar el trabajo a un tercero que quisiera modificar el programa, por esto se decidió trabajar con Visual Studio Code \cite{vscode} y las herramientas de compilación de C++ para Windows \cite{msvc}. Básicamente solo un editor de texto, el compilador y el terminal, evitando entornos más complejos y pesados como Visual Studio completo.
+
+El repositorio de trabajo se encuentra en la cuenta de GitHub del autor \cite{fssp}, la carpeta del proyecto se puede cargar en Visual Studio Code y, teniendo instalado el compilador de Microsoft para C++ \cite{msvc} se debería tener todo lo necesario para replicar el entorno de desarrollo.
+
+Primero se realizaron pruebas con la librería FSUIPC para comprobar que la versión para X-Plane funcionase correctamente, luego se estableció comunicación por UDP con la librería WinSock \cite{winsock} entre el programa y Python, y luego con SimuLink, existiendo ejemplos en el mismo repositorio.
+
+La primera implementación del protocolo incluye el monitoreo y control de variables de manera genérica, solicitando al usuario ingresar la ubicación de memoria y tipo de variable según la documentación de FSUIPC \cite{fsuipcoffsets}, luego se van agregando comandos más específicos que sean más amigables como monitoreo de ``Velocidad'' y ``Altitud'' por sus nombres, no por sus ubicaciones en la memoria.
+
+\section{Protocolo}
+
+% Que hace el protocolo y como
+El protocolo habilita la comunicación entre un microcontrolador y un programa intermediario, el que accede a la memoria del simulador y la modifica o lee de acuerdo a los comandos que se reciben. La comunicación puede efectuarse por serial USB y por wifi en paquetes UDP por IP.
+
+% Descripción
+Los mensajes están formados por cadenas de caracteres o estructuras de números de coma flotante de simple o doble precisión dependiendo de la arquitectura del microcontrolador.
+
+\subsection{Monitoreo de variables genérico}
+
+% Proposito
+Este comando activa el monitoreo de las variables definidas en una cadena de caracteres en un orden específico, en ese orden es en el que se empezara a recibir de manera continua el valor de las variables en una estructura con números de coma flotante.
+
+% Ejemplos de uso
+Variables que se podrían querer monitorear son las que describen el estado del vuelo como la velocidad o la altitud.
+
+\begin{lstlisting}[language=Python]
+	# Monitoreo generico
+	# M;ubicacion1:tipo1;ubicacion2:tipo2;ubicacion3:tipo3;
+	#
+	# Ejemplo
+	# Enviar mensaje de monitoreo
+	msg = "M;2B8:i;"
+	sock_send.sendto(bytes(msg, "ascii"), SERVER)
+
+	# Leer valores recibidos
+	for i in range(11):
+		msg, addr = sock_recv.recvfrom(1024)
+		tas = struct.unpack("<d", msg)
+		print("TAS: " + str(tas[0]/128) + " knots")
+\end{lstlisting}
 
 
+\subsection{Escritura continua de variables genérica}
 
+% Proposito
+Este comando define que variables se quieren escribir de manera continua y que tipos son, luego se deben enviar los valores en formato de número con coma flotante para que el programa los escriba y reemplace en la simulación.
+
+% Ejemplos de uso
+Variables que se podrían querer escribir continuamente son los controles de la aeronave como el acelerador o el timón.
+
+\begin{lstlisting}[language=Python]
+	# Escritura generica
+	# C;ubicacion1:tipo1;ubicacion2:tipo2;ubicacion3:tipo3;
+	#
+	# Ejemplo
+	# Enviar mensaje de control
+	msg = "C;310A:c;089A:s;"
+	sock_send.sendto(bytes(msg, "ascii"), SERVER)
+
+	# Enviar valores del control
+	for i in range(11):
+		# 4to bit habilita el control del acelerador
+		# 00001000 = 8
+		inputs = 8
+		# El valor del acelerador va de -4096 a 16384
+		throttle = 16384/10*i
+		msg = struct.pack("<dd", inputs, throttle)
+		sock_send.sendto(msg, SERVER)
+		time.sleep(1);
+\end{lstlisting}
+
+\section{Resultados}
+
+a

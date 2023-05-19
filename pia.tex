@@ -1,4 +1,4 @@
-\documentclass[12pt]{report}
+\documentclass{report}
 \usepackage[letterpaper, margin=3cm]{geometry}
 \usepackage{tgtermes}
 \usepackage[spanish]{babel}
@@ -8,14 +8,59 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{graphicx}
 \graphicspath{{./img/}}
+\usepackage[export]{adjustbox}
+\usepackage{etoolbox}
+\expandafter\patchcmd\csname Gin@ii\endcsname
+  {\setkeys {Gin}{#1}}
+  {%
+    \setkeys {Gin}
+      {max height=.3\textwidth,keepaspectratio,#1}%
+  }
+  {}{}
 \usepackage{biblatex}
 \addbibresource{refs.bib}
 \usepackage{csquotes}
 \usepackage{bookmark}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
 
 \begin{document}
 \input{portada.tex}
+\chapter*{Agradecimientos}
+\begin{center}
+	\includegraphics{elif.jpeg}
+	
+	Elif
+\end{center}
+
 \tableofcontents
+\listoffigures
 \input{cap1.tex}
 \input{cap2.tex}
 \input{cap3.tex}

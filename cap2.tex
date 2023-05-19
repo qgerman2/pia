@@ -12,7 +12,21 @@ En este capítulo se describe el proceso de actualización del equipo del simula
 \section{Configuración inicial}
 
 % Resumen hardware y software
-El equipo consiste en 3 computadores conectados a 7 pantallas con una disposición de 5 pantallas abarcando el campo de visión horizontal y 2 pantallas auxiliares para mostrar instrumentos del panel, periféricos de control similares a los encontrados a una avioneta Cessna 172 \cite{saitek}, sistema de sonido y red local con router. El computador principal cuenta con Windows 10, procesador Intel i7 de tercera generación y tarjeta gráfica NVIDIA GTX 1060, los dos computadores secundarios tienen Windows 7 y prestaciones mucho más bajas, pero suficientes para ejecutar X-Plane 9.
+El equipo consiste en 3 computadores conectados a 7 pantallas con una disposición de 5 pantallas abarcando el campo de visión horizontal y 2 pantallas auxiliares para mostrar instrumentos del panel, periféricos de control similares a los encontrados a una avioneta Cessna 172 \cite{saitek}, sistema de sonido y red local con router (\ref{fig:sim1}). El computador principal cuenta con Windows 10, procesador Intel i7 de tercera generación y tarjeta gráfica NVIDIA GTX 1060 (\ref{fig:sim2}), los dos computadores secundarios tienen Windows 7 y prestaciones mucho más bajas, pero suficientes para ejecutar X-Plane 9.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics{sim1.jpeg}
+	\caption{Simulador de vuelo con configuración original}
+	\label{fig:sim1}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics{sim2.jpeg}
+	\caption{Computador principal con configuración original}
+	\label{fig:sim2}
+\end{figure}
 
 % Como funciona X-Plane 9
 Cada computador corre una instancia de X-Plane 9, el principal dirige la simulación, recibe la entrada de los controles y envía el estado de la simulación a los computadores secundarios por medio de la red local, los que replican el estado y actúan como extensión del campo de visión y despliegue del panel de instrumentos, todo configurado de acuerdo a las instrucciones del manual de usuario de X-Plane 9 \cite{manual9}.
@@ -63,13 +77,41 @@ La nueva configuración consiste en reducir la cantidad de computadores de tres 
 Se instalan los nuevos componentes al computador principal y se prueba que funcionen correctamente, las unidades de procesamiento del equipo en este punto son su procesador Intel i7-3770k y una tarjeta gráfica NVIDIA GTX 1080. Con esta configuración se ve limitada la cantidad de salidas de video disponibles como fue descrito previamente, por lo que se procede a realizar pruebas del funcionamiento del equipo al agregarse la tarjeta GTX 1060 y una segunda fuente.
 
 % Pruebas de la solución y resultado
-Con la segunda tarjeta gráfica conectada al puerto PCI disponible, se prepara la antigua fuente de poder para un encendido manual \cite{psumanual} y se conecta para alimentar la GTX 1060, por HDMI se conecta una quinta pantalla al equipo el cual se enciende para comprobar su funcionamiento. Las pruebas son un éxito y se decide por instalar la segunda fuente dentro del gabinete.
+Con la segunda tarjeta gráfica conectada al puerto PCI disponible, se prepara la antigua fuente de poder para un encendido manual \cite{psumanual} y se conecta para alimentar la GTX 1060, por HDMI se conecta una quinta pantalla al equipo el cual se enciende para comprobar su funcionamiento. Las pruebas son un éxito (\ref{fig:sim3}) y se decide por instalar la segunda fuente dentro del gabinete (\ref{fig:sim4}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics{sim3.jpeg}
+	\caption{Prueba de encendido con segunda fuente de poder}
+	\label{fig:sim3}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics{sim4.jpeg}
+	\caption{Instalación de segunda fuente con amarras plásticas}
+	\label{fig:sim4}
+\end{figure}
 
 % Problema de sincronización y compra del sincronizador
-Al no estar conectada directamente a la placa madre, la segunda fuente de poder necesita ser encendida y apagada manualmente al mismo tiempo que el computador, para resolver este problema se compra un dispositivo que sincroniza el encendido de la fuente auxiliar por medio de un relé.
+Al no estar conectada directamente a la placa madre, la segunda fuente de poder necesita ser encendida y apagada manualmente al mismo tiempo que el computador, para resolver este problema se compra un dispositivo que sincroniza el encendido de la fuente auxiliar por medio de un relé (\ref{fig:sim5}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics{sim5.jpeg}
+	\caption{Dispositivo sincronizador de fuentes}
+	\label{fig:sim5}
+\end{figure}
 
 % Configuración final de hardware
-Finalmente se conectan todas las pantallas al equipo, terminando el proceso de actualización y dando paso a comenzar la configuración del software de simulación. Los componentes principales del computador por el momento son el procesador Intel i7-3370k, dos tarjetas gráficas NVIDIA GTX 1080 y NVIDIA GTX 1060, y se espera que se introduzca en el futuro un mejor procesador que permita ejecutar software de simulación actual como Microsoft Flight Simulator 2020 y X-Plane 12.
+Finalmente se conectan todas las pantallas al equipo, terminando el proceso de actualización (\ref{fig:sim6}) y dando paso a comenzar la configuración del software de simulación. Los componentes principales del computador por el momento son el procesador Intel i7-3370k, dos tarjetas gráficas NVIDIA GTX 1080 y NVIDIA GTX 1060, y se espera que se introduzca en el futuro un mejor procesador que permita ejecutar software de simulación actual como Microsoft Flight Simulator 2020 y X-Plane 12.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics{sim6.jpeg}
+	\caption{Simulador de vuelo con configuración final}
+	\label{fig:sim6}
+\end{figure}
 
 \subsection{Software}
 
@@ -83,7 +125,22 @@ Desde los servidores de Microsoft se obtiene la imagen de disco más reciente de
 Posterior a la instalación, completada la información que se solicite y actualizado el equipo, se ordenan las pantallas en el panel de control de NVIDIA de manera que las 5 pantallas superiores formen una imagen continua y las 2 pantallas auxiliares se desplazan a la parte inferior, con la herramienta de administración de discos de Windows se divide la partición principal creando una nueva partición de 300 GB, con el propósito de almacenar los archivos de instalación del software como respaldo, como por ejemplo las imágenes de disco de X-Plane 9 y 10.
 
 % Descarga de X-Plane 9 desde las carpetas udec en onedrive y respaldo de discos de X-Plane 10
-La universidad dispone de copias de X-Plane 9 y X-Plane 10, los archivos de X-Plane 9 se descargan desde una carpeta compartida en OneDrive proporcionada, estos archivos vienen en formato de imágenes de disco MDF y se instala el software WinCDEmu \cite{wincdemu} para poder cargarlos uno a uno. De X-Plane 10 se cuenta con los discos físicos, el computador principal no tiene un lector de DVD por lo que temporalmente se conecta uno de los equipos secundarios que si tiene lector y se crean imágenes de disco con el programa ImgBurn \cite{imgburn}, que luego se copian al principal para completar la instalación de la misma forma que como con X-Plane 9.
+La universidad dispone de copias de X-Plane 9 y X-Plane 10, los archivos de X-Plane 9 se descargan desde una carpeta compartida en OneDrive proporcionada, estos archivos vienen en formato de imágenes de disco MDF y se instala el software WinCDEmu \cite{wincdemu} para poder cargarlas uno a uno. De X-Plane 10 se cuenta con los discos físicos, el computador principal no tiene un lector de DVD por lo que temporalmente se conecta uno de los equipos secundarios que si tiene lector y se crean imágenes de disco con el programa ImgBurn \cite{imgburn}, que luego se copian al principal para completar la instalación de la misma forma que como con X-Plane 9.
 
 % Configuración de multiples X-Plane con script de Autohotkey
-[Scripts para ordenar las instancias de X-Plane aún en desarrollo]
+[Scripts para ordenar las multiples instancias de X-Plane aún en desarrollo]
+
+\section{Resultados}
+
+A los pocos días de haber terminado la configuración del hardware con múltiples pantallas, los integrantes del simulador de vuelo en el laboratorio de técnicas aeroespaciales realizaron pruebas con versiones de demostración de Flight Simulator 2020 y X-Plane 12 (\ref{fig:sim7}), a pesar de que el rendimiento era bajo los alumnos pudieron configurar los controles y realizar vuelos, incluso invitando a otros alumnos y docentes a pilotar y ver los resultados.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics{sim7.jpeg}
+	\caption{Pruebas con Microsoft Flight Simulator 2020}
+	\label{fig:sim7}
+\end{figure}
+
+El software más reciente instalado por los integrantes del grupo de interés incluye soporte para configuración multi-pantalla sin necesidad de trucos como abrir más de una instancia del programa, por lo que fue una tarea fácil configurarlo, sin embargo los simuladores X-Plane antiguos proporcionados por la universidad requieren más trabajo porque la disposición multi-pantalla con un solo computador no está considerada en los manuales \cite{manual9}.
+
+En conclusión se lograron los objetivos, se cumple la solicitud de actualizar el simulador con los nuevos componentes y se simplifica la disposición de tres computadores a solo uno, habilitando un camino claro de actualización que es la compra de nuevas piezas como un procesador más reciente o almacenamiento de estado sólido, se reducen los tiempos necesarios para instalar nuevo software, configurarlo y se asegura un futuro próspero para el grupo de interés del simulador de vuelo.

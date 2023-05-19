@@ -13,7 +13,7 @@ Los programas de ingeniería aeroespacial además de impartir conocimientos de l
 Las simulaciones permiten acceder o modificar arbitrariamente variables de la aeronave y el entorno, con la ayuda de interfaces que extraen de la simulación el estado de los sistemas involucrados y lo exportan a otros medios en los que sea más fácil hacer uso de los datos, ya sea para visualizarlos en tiempo real en un panel de instrumentos con indicadores, registrar información de la condición de la aeronave durante el vuelo para posterior evaluación de rendimiento, o la modificación directa de la simulación para estudiar condiciones específicas, entre otros. Todo sin dejar de lado el realismo y por lo tanto autenticidad que ofrece el software de simulación evitando lo costoso de realizar los mismos estudios en aeronaves de verdad.
 
 % Justificación y objetivo del proyecto
-% Trabajar con simuladores y microprocesadores no es fácil, hay algo que se puede hacer para facilitarlo
+% Trabajar con simuladores y microcontroladores no es fácil, hay algo que se puede hacer para facilitarlo
 Sin embargo, existen barreras tecnológicas que ralentizan el uso de un simulador de vuelo por lo compleja que puede ser su interfaz gráfica o lo exigentes que sean en términos del manejo de una aeronave, el usuario debe en primera instancia contar con el hardware adecuado que pueda ejecutar el simulador y familiarizarse con el funcionamiento interno del software para lograr sus fines. El objetivo de este proyecto de ingeniería abarca principalmente el caso de lograr comunicar el estado de la simulación a un hardware externo y que este pueda enviar comandos en respuesta, estableciendo una interfaz dedicada para ello que sea versátil y fácil de empezar a utilizar, junto con las instrucciones pertinentes.
 
 % Por qué hardware externo?
@@ -23,7 +23,7 @@ En la simulación el uso de hardware externo que no sea la computadora principal
 \subsection{Software utilizado}
 
 % Qué es lo que ya existe?
-Algunas soluciones existentes para comunicar simuladores de vuelo con microprocesadores son SimVimX \cite{simvimx} y MobiFlight \cite{mobiflight}, estos programas están diseñados para entusiastas que construyen paneles de instrumentos personalizados conectados a microprocesadores como Arduino o a otros computadores, habilitan la integración de los paneles proporcionando manuales e interfaces gráficas que ayudan a programar todo. 
+Algunas soluciones existentes para comunicar simuladores de vuelo con microcontroladores son SimVimX \cite{simvimx} y MobiFlight \cite{mobiflight}, estos programas están diseñados para entusiastas que construyen paneles de instrumentos personalizados conectados a microcontroladores como Arduino o a otros computadores, habilitan la integración de los paneles proporcionando manuales e interfaces gráficas que ayudan a programar todo. 
 
 % El problema con las soluciones actuales
 % Enfoque en paneles personalizados
@@ -38,7 +38,7 @@ Programar software que aproveche FSUIPC otorga las ventajas de compatibilidad co
 
 \subsection{Otras soluciones}
 
-% Otro software como FSUIPC y XPUIPC que sí tienen interfaz con microprocesadores pero solo para un simulador en específico
+% Otro software como FSUIPC y XPUIPC que sí tienen interfaz con microcontroladores pero solo para un simulador en específico
 X-Plane Connect \cite{xpc} o XPC es otra interfaz diseñada por la NASA que cumple funciones similares a FSUIPC, pero específica para X-Plane sin posibilidad de adaptarla a otros simuladores. Lo interesante de esta alternativa es que incluye una librería para programar en MATLAB \cite{matlab} y por consiguiente Simulink \cite{simulink} lo que facilita el análisis de sistemas de control. SimConnect \cite{simconnect} desarrollado por Microsoft es una interfaz de bajo nivel como XPC o FSUIPC diseñada exclusivamente para Microsoft Flight Simulator 2020 también con características similares a las demás librerías.
 
 \section{Objetivos}
@@ -53,7 +53,7 @@ Reconfigurar simulador de vuelo del laboratorio de técnicas aeroespaciales, lue
 
 \textbf{2.} Puesta en marcha del software de simulación. Instalación de sistema operativo Windows 10 actualizado y X-Plane, configurar el panel de instrumentos y controles.
 
-\textbf{3.} Establecer protocolo de comunicación entre software del simulador y equipos externos, primero definiendo un protocolo de comunicación sobre IP y Serial diseñado para microprocesadores que soporten estas funciones, luego preparar con librerías existentes la extracción y manipulación de variables internas del simulador para finalmente combinar el protocolo de comunicación y la implementación de la librería en un programa personalizado.
+\textbf{3.} Establecer protocolo de comunicación entre software del simulador y equipos externos, primero definiendo un protocolo de comunicación sobre IP y Serial diseñado para microcontroladores que soporten estas funciones, luego preparar con librerías existentes la extracción y manipulación de variables internas del simulador para finalmente combinar el protocolo de comunicación y la implementación de la librería en un programa personalizado.
 
 \textbf{4.} Documentar uso del simulador preparando manuales instructivos referentes a la configuración de hardware y software del simulador, y el trabajo con el protocolo de comunicación con dispositivos externos.
 
@@ -71,9 +71,9 @@ Respecto al software, se va a realizar una instalación de Windows 10 compatible
 
 \subsection{Protocolo de comunicación}
 
-El nuevo código que se vaya a escribir para el protocolo de comunicación utilizara estándares ya establecidos en simuladores, y la implementación en el lado del hardware externo será en un lenguaje que compartan los microprocesadores o microcontroladores como Arduino y Raspberry con mínima modificación.
+El nuevo código que se vaya a escribir para el protocolo de comunicación utilizara estándares ya establecidos en simuladores, y la implementación en el lado del hardware externo será en un lenguaje que compartan los microcontroladores o microprocesadores como Arduino y Raspberry con mínima modificación.
 
-Reducir la complejidad del protocolo de comunicación es clave, pues se está buscando que esta interfaz pueda ser utilizada por más personas que no necesariamente estén familiarizadas con la programación puedan cumplir sus objetivos, los cuales van más allá que solo crear paneles de instrumentos, como por ejemplo control y pruebas automatizadas.
+Reducir la complejidad del protocolo de comunicación es clave, pues se está buscando que esta interfaz pueda ser aprovechada por usuarios no necesariamente familiarizados con la programación para que puedan cumplir sus objetivos, los cuales van más allá que solo crear paneles de instrumentos, como por ejemplo control y pruebas automatizadas.
 
 \subsection{Documentación}
 
@@ -89,12 +89,12 @@ Hecho esto, se investigarán las alternativas y posibilidades de habilitar la m�
 
 \subsection{Protocolo de comunicación}
 
-El comienzo del desarrollo del protocolo de comunicación consistirá en establecer el canal sistema operativo - microprocesador y la librería para trabajar con el simulador.
+El comienzo del desarrollo del protocolo de comunicación consistirá en establecer el canal sistema operativo - microcontrolador y la librería para trabajar con el simulador.
 
 \noindent
 \textbf{1.} Seleccionar canal de comunicación entre el sistema operativo y hardware externo
 
-Para lograr un enlace entre un microprocesador y el software de simulación primero es necesario establecer comunicación entre el microprocesador y el sistema operativo, esto requiere caracterizar los canales disponibles en el hardware externo que se vaya a utilizar, los microcontroladores por lo general cuentan con una interfaz serial e inalámbrica por Bluetooth o wifi, también habrá que averiguar los lenguajes en los que programarlos comparando sus características de acuerdo a los objetivos.
+Para lograr un enlace entre un microcontrolador y el software de simulación primero es necesario establecer comunicación entre el microcontrolador y el sistema operativo, esto requiere caracterizar los canales disponibles en el hardware externo que se vaya a utilizar, los microcontroladores por lo general cuentan con una interfaz serial e inalámbrica por Bluetooth o wifi, también habrá que averiguar los lenguajes en los que programarlos comparando sus características de acuerdo a los objetivos.
 
 \noindent
 \textbf{2.} Seleccionar software que permita la extracción y manipulación de variables del simulador
